@@ -122,8 +122,8 @@
         <video autoplay id="video"></video>
         <div id="camera-warning" style="display: none;">
             <div>⚠️ Akses kamera ditolak! Harap izinkan akses kamera untuk menggunakan website ini.</div>
-            <button onclick="initCamera()">Coba Lagi</button>
-            <p>(Jika tombol tidak muncul, klik ikon gembok di sebelah URL browser dan ubah izin Kamera ke "Izinkan")</p>
+            <button onclick="window.location.reload()">Coba Lagi & Reload</button>
+            <p><strong>Penting:</strong> Jika permintaan izin tidak muncul setelah reload, klik ikon 🔒 (gembok) di sebelah kiri alamat website (URL) di atas, lalu ubah <strong>Kamera</strong> menjadi <strong>"Izinkan" (Allow)</strong>.</p>
         </div>
         <div class="controls">
             <input type="number" min="0" placeholder="Timer (sec)" id="timer">
