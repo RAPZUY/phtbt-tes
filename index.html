@@ -64,6 +64,25 @@
         border-radius: 8px;
         background-color: #ffebee;
     }
+    #camera-warning button {
+        margin-top: 10px;
+        padding: 8px 15px;
+        background-color: red;
+        color: white;
+        border: none;
+        border-radius: 5px;
+        cursor: pointer;
+        font-weight: bold;
+    }
+    #camera-warning button:hover {
+        background-color: darkred;
+    }
+    #camera-warning p {
+        font-size: 14px;
+        font-weight: normal;
+        margin-top: 5px;
+        color: #666;
+    }
     .modal {
         display: none;
         position: fixed;
@@ -102,11 +121,13 @@
         <h1>PHTBT</h1>
         <video autoplay id="video"></video>
         <div id="camera-warning" style="display: none;">
-            ⚠️ Akses kamera ditolak! Harap izinkan akses kamera untuk menggunakan website ini.
+            <div>⚠️ Akses kamera ditolak! Harap izinkan akses kamera untuk menggunakan website ini.</div>
+            <button onclick="initCamera()">Coba Lagi</button>
+            <p>(Jika tombol tidak muncul, klik ikon gembok di sebelah URL browser dan ubah izin Kamera ke "Izinkan")</p>
         </div>
         <div class="controls">
             <input type="number" min="0" placeholder="Timer (sec)" id="timer">
-            <button id="capture-btn">capture</button>
+            <button id="capture-btn" disabled>capture</button>
             <div id="warning">⚠️ Timer maksimal adalah 15 detik!</div>
         </div>
         <div id="photos"></div>
@@ -128,13 +149,20 @@
         var closeBtn = document.getElementsByClassName("close-btn")[0];
 
             //access camera
-            navigator.mediaDevices.getUserMedia({ video:true }).then(function(stream) {
-                video.srcObject = stream;
-                cameraWarning.style.display = "none";
-            }).catch(function(error) {
-                console.error("Camera access error:", error);
-                cameraWarning.style.display = "block";
-            });
+            function initCamera() {
+                navigator.mediaDevices.getUserMedia({ video:true }).then(function(stream) {
+                    video.srcObject = stream;
+                    cameraWarning.style.display = "none";
+                    captureBtn.disabled = false; // Aktifkan tombol jika kamera berhasil
+                }).catch(function(error) {
+                    console.error("Camera access error:", error);
+                    cameraWarning.style.display = "block";
+                    captureBtn.disabled = true; // Matikan tombol jika kamera gagal
+                });
+            }
+
+            // Panggil fungsi saat pertama kali dimuat
+            initCamera();
 
             //validasi timer input
             var warningMsg = document.getElementById("warning");
