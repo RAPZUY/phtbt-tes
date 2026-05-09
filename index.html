@@ -1,0 +1,228 @@
+<html>
+<head>
+    <style>
+    body {
+        display: flex;
+        justify-content: center;
+        align-items: center;
+    }
+    .container {
+        text-align: center;
+    }
+    video {
+        border: 2px solid black;
+        width: 600px;
+        height: 450px;
+        transform: scaleX(-1);
+    }
+    .controls {
+        margin-top: 10px;
+    }
+    .controls input {
+        width: 150px;
+        padding: 5px;
+    }
+    .controls button {
+        padding: 5px 10px;
+        cursor: pointer;
+    }
+    #photos {
+        display: flex;
+        flex-wrap: wrap;
+        margin-top: 20px;
+    }
+    .photo {
+        margin: 10px;
+        position: relative;
+    }
+    .photo img {
+        width: 170px;
+        height: 135px;
+        border: 2px solid black;
+        transform: scaleX(-1);
+    }
+    .photo button {
+        position: absolute;
+        bottom: 7px;
+        left: 28%;
+        padding: 7px;
+        cursor: pointer;
+    }
+    #warning {
+        color: red;
+        margin-top: 10px;
+        font-weight: bold;
+        display: none;
+    }
+    #camera-warning {
+        color: red;
+        margin-top: 20px;
+        font-weight: bold;
+        font-size: 18px;
+        padding: 15px;
+        border: 2px solid red;
+        border-radius: 8px;
+        background-color: #ffebee;
+    }
+    .modal {
+        display: none;
+        position: fixed;
+        z-index: 1000;
+        left: 0;
+        top: 0;
+        width: 100%;
+        height: 100%;
+        background-color: rgba(0,0,0,0.8);
+        justify-content: center;
+        align-items: center;
+    }
+    .modal-content {
+        max-width: 90%;
+        max-height: 90%;
+        transform: scaleX(-1);
+        border: 3px solid white;
+        border-radius: 8px;
+    }
+    .close-btn {
+        position: absolute;
+        top: 20px;
+        right: 30px;
+        color: white;
+        font-size: 40px;
+        font-weight: bold;
+        cursor: pointer;
+    }
+    .close-btn:hover {
+        color: #ffcccc;
+    }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>PHTBT</h1>
+        <video autoplay id="video"></video>
+        <div id="camera-warning" style="display: none;">
+            ⚠️ Akses kamera ditolak! Harap izinkan akses kamera untuk menggunakan website ini.
+        </div>
+        <div class="controls">
+            <input type="number" min="0" placeholder="Timer (sec)" id="timer">
+            <button id="capture-btn">capture</button>
+            <div id="warning">⚠️ Timer maksimal adalah 15 detik!</div>
+        </div>
+        <div id="photos"></div>
+    </div>
+    
+    <div id="preview-modal" class="modal">
+        <span class="close-btn">&times;</span>
+        <img class="modal-content" id="preview-img">
+    </div>
+    
+    <script>
+        var video = document.getElementById("video");
+        var captureBtn = document.getElementById("capture-btn");
+        var photosContainer = document.getElementById("photos");
+        var timerInput = document.getElementById("timer");
+        var cameraWarning = document.getElementById("camera-warning");
+        var previewModal = document.getElementById("preview-modal");
+        var previewImg = document.getElementById("preview-img");
+        var closeBtn = document.getElementsByClassName("close-btn")[0];
+
+            //access camera
+            navigator.mediaDevices.getUserMedia({ video:true }).then(function(stream) {
+                video.srcObject = stream;
+                cameraWarning.style.display = "none";
+            }).catch(function(error) {
+                console.error("Camera access error:", error);
+                cameraWarning.style.display = "block";
+            });
+
+            //validasi timer input
+            var warningMsg = document.getElementById("warning");
+            timerInput.addEventListener("input", () => {
+                var value = parseInt(timerInput.value);
+                if (value > 15) {
+                    timerInput.value = 15;
+                    warningMsg.style.display = "block";
+                    timerInput.style.borderColor = "red";
+                    timerInput.style.borderWidth = "2px";
+                } else {
+                    warningMsg.style.display = "none";
+                    timerInput.style.borderColor = "";
+                    timerInput.style.borderWidth = "";
+                }
+            });
+
+            //capture with timer
+            captureBtn.addEventListener("click", () => {
+                var timerValue = parseInt(timerInput.value) || 0;
+                if (timerValue > 15) {
+                    timerValue = 15;
+                }
+                var timer = timerValue - 1;
+                if (timer > 0) {
+                    captureBtn.disabled = true;
+                var countdown = setInterval(() => {
+                    captureBtn.textContent = `Capture (${timer})`;
+                    if(timer <= 0) {
+                        clearInterval(countdown);
+                        captureBtn.textContent = "capture";
+                        captureBtn.disabled = false;
+                        capturePhoto();
+                    }
+                    timer--;
+                }, 1000);
+                } else {
+                    capturePhoto();
+                }
+            });
+
+            function capturePhoto(){
+                var canvas = document.createElement("canvas");
+                var context = canvas.getContext("2d");
+                canvas.width = video.videoWidth;
+                canvas.height = video.videoHeight;
+
+                context.drawImage(video, 0 , 0, canvas.width, canvas.height);
+                var dataURL = canvas.toDataURL("image/png");
+
+                //buat list foto
+                var photoDiv = document.createElement("div");
+                photoDiv.classList.add("photo");
+
+                var img = document.createElement("img");
+                img.src = dataURL;
+                img.style.cursor = "pointer";
+                img.addEventListener("click", () => {
+                    previewModal.style.display = "flex";
+                    previewImg.src = dataURL;
+                });
+                photoDiv.appendChild(img);
+
+                //fitur download
+                var downloadBtn = document.createElement("button");
+                downloadBtn.textContent = "download";
+                downloadBtn.addEventListener("click", ()=> {
+                    var a = document.createElement("a");
+                    a.href = dataURL;
+                    a.download = "photo.png";
+                    a.click();
+                });
+                photoDiv.appendChild(downloadBtn);
+                photosContainer.appendChild(photoDiv);
+            }
+
+            //close modal when click X
+            closeBtn.addEventListener("click", () => {
+                previewModal.style.display = "none";
+            });
+
+            //close modal when click outside image
+            previewModal.addEventListener("click", (e) => {
+                if (e.target === previewModal) {
+                    previewModal.style.display = "none";
+                }
+            });
+        </script>
+    </div>
+</body>
+</html>
