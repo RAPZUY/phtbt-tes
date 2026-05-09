@@ -121,9 +121,20 @@
         <h1>PHTBT</h1>
         <video autoplay id="video"></video>
         <div id="camera-warning" style="display: none;">
-            <div>⚠️ Akses kamera ditolak! Harap izinkan akses kamera untuk menggunakan website ini.</div>
-            <button onclick="window.location.reload()">Coba Lagi & Reload</button>
-            <p><strong>Penting:</strong> Jika permintaan izin tidak muncul setelah reload, klik ikon 🔒 (gembok) di sebelah kiri alamat website (URL) di atas, lalu ubah <strong>Kamera</strong> menjadi <strong>"Izinkan" (Allow)</strong>.</p>
+            <div style="margin-bottom: 10px;">⚠️ <strong>Akses Kamera Terblokir</strong></div>
+            <div style="font-size: 14px; margin-bottom: 15px;">
+                Browser memblokir akses kamera. Klik tombol di bawah untuk mencoba memanggil ulang izin, atau ikuti panduan reset manual.
+            </div>
+            <button onclick="window.location.reload()" style="background-color: #ff4757; margin-bottom: 10px;">
+                🔄 Reset & Coba Lagi
+            </button>
+            <div style="text-align: left; font-size: 13px; background: rgba(0,0,0,0.05); padding: 10px; border-radius: 5px;">
+                <strong>Cara Reset Izin Manual:</strong><br>
+                1. Klik ikon 🔒 <strong>Gembok</strong> di bar alamat (URL) atas.<br>
+                2. Cari menu <strong>Kamera</strong>.<br>
+                3. Ubah menjadi <strong>"Izinkan" (Allow)</strong> atau tekan <strong>"Reset Permission"</strong>.<br>
+                4. Klik tombol di atas atau tekan <strong>F5</strong>.
+            </div>
         </div>
         <div class="controls">
             <input type="number" min="0" placeholder="Timer (sec)" id="timer">
